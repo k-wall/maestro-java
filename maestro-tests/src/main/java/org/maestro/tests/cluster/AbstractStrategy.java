@@ -61,7 +61,7 @@ public abstract class AbstractStrategy implements DistributionStrategy {
             }
             catch (NotEnoughRepliesException e) {
                 logger.error("Not enough replies trying to unassign node {}@{} as {}", peerInfo.peerName(), peerInfo.peerHost(),
-                        peerInfo.getRole());
+                        peerInfo.getRole(), e);
             }
         }
     }
