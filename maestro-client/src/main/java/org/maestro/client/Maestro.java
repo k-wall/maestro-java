@@ -628,19 +628,7 @@ public final class Maestro implements MaestroRequester {
     }
 
     public static <T> void set(Function<T, CompletableFuture<List<? extends MaestroNote>>> function, T value, int timeout) {
-        List<? extends MaestroNote> replies;
-        try {
-            replies = function.apply(value).get(timeout, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException e) {
-            throw new MaestroException(e);
-        }
-        catch (TimeoutException e) {
-            throw new NotEnoughRepliesException("Timed out waiting for replies from the test cluster", e);
-        }
-
-        if (replies.size() == 0) {
-            throw new NotEnoughRepliesException("Not enough replies when trying to execute a command on the test cluster");
-        }
+        List<? extends MaestroNote> replies = getMaestroNotes(timeout, function.apply(value));
 
         for (MaestroNote reply : replies) {
             if (reply instanceof InternalError) {
@@ -657,20 +645,7 @@ public final class Maestro implements MaestroRequester {
     public static <T, U> void set(BiFunction<T, U, CompletableFuture<List<? extends MaestroNote>>> function, T value1,
                                   final U value2, int timeout)
     {
-        List<? extends MaestroNote> replies;
-        try {
-            replies = function.apply(value1, value2).get(timeout, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException e) {
-            throw new MaestroException(e);
-        }
-        catch (TimeoutException e) {
-            throw new NotEnoughRepliesException("Timed out waiting for replies from the test cluster", e);
-        }
-
-        if (replies.size() == 0) {
-            throw new NotEnoughRepliesException(String.format("Not enough replies received within %d seconds when trying" +
-                    "to execute a command on the test cluster", timeout));
-        }
+        List<? extends MaestroNote> replies = getMaestroNotes(timeout, function.apply(value1, value2));
 
         for (MaestroNote reply : replies) {
             if (reply instanceof InternalError) {
@@ -685,6 +660,23 @@ public final class Maestro implements MaestroRequester {
                 }
             }
         }
+    }
+
+    private static List<? extends MaestroNote> getMaestroNotes(int timeout, CompletableFuture<List<? extends MaestroNote>> apply) {
+        List<? extends MaestroNote> replies;
+        try {
+            replies = apply.get(timeout, TimeUnit.SECONDS);
+        } catch (InterruptedException | ExecutionException e) {
+            throw new MaestroException(e);
+        } catch (TimeoutException e) {
+            throw new NotEnoughRepliesException(String.format("Timed out after %d seconds whilst awaiting for replies from the test cluster", timeout), e);
+        }
+
+        if (replies.size() == 0) {
+            throw new NotEnoughRepliesException(String.format("Not enough replies received within %d seconds when trying" +
+                    "to execute a command on the test cluster", timeout));
+        }
+        return replies;
     }
 
 
