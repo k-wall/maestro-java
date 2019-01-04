@@ -668,7 +668,8 @@ public final class Maestro implements MaestroRequester {
         }
 
         if (replies.size() == 0) {
-            throw new NotEnoughRepliesException("Not enough replies when trying to execute a command on the test cluster");
+            throw new NotEnoughRepliesException(String.format("Not enough replies received within %d seconds when trying" +
+                    "to execute a command on the test cluster", timeout));
         }
 
         for (MaestroNote reply : replies) {
