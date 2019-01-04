@@ -60,8 +60,10 @@ public abstract class AbstractStrategy implements DistributionStrategy {
                 Maestro.exec(maestro::roleUnassign, topic);
             }
             catch (NotEnoughRepliesException e) {
-                logger.error("Not enough replies trying to unassign node {}@{} as {}", peerInfo.peerName(), peerInfo.peerHost(),
-                        peerInfo.getRole(), e);
+                logger.error("KWDEBUG", new Exception());
+                logger.error("Not enough replies trying to unassign node {}@{} as {} {}", peerInfo.peerName(), peerInfo.peerHost(),
+                        peerInfo.getRole(), e.getMessage(), e);
+                e.printStackTrace();
             }
         }
     }
