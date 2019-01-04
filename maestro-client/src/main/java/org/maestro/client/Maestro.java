@@ -639,7 +639,7 @@ public final class Maestro implements MaestroRequester {
     }
 
     public static <T> void set(Function<T, CompletableFuture<List<? extends MaestroNote>>> function, T value) {
-        set(function, value, 2);
+        set(function, value, 60);
     }
 
     public static <T, U> void set(BiFunction<T, U, CompletableFuture<List<? extends MaestroNote>>> function, T value1,
